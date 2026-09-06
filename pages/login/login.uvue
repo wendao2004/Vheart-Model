@@ -1,0 +1,122 @@
+<template>
+	<view class="navigation">
+		<view class="logoView">
+			<image class="logo" src="/static/logo.png" mode=""></image>
+			<text class="VTitle">Vheart-Model</text>
+			<text class="VTitle">记录你的生活</text>
+		</view>
+		<view class="switchLoginBox">
+			<text class="login">登陆</text>
+			<text class="register">注册</text>
+		</view>
+		<view class="loginBox">
+			<input class="userName" type="number" placeholder="请输入手机号" />
+			<input class="password" type="text" password="true" placeholder="请输入密码" />
+			<button class="loginButton" @click="handleGo">登陆</button>
+			<text style="color: #3c86fe;display: flex;">忘记密码?</text>
+		</view>
+		<view>
+			<text style="color: white;">———&nbsp;&nbsp;&nbsp;或使用其他方式登陆&nbsp;&nbsp;&nbsp;———</text>
+			<view style="display: flex;flex-direction: row;justify-content: center;align-items: center;padding: 4%;">
+				<image src="/static/logo.png" style="width: 144rpx;height: 144rpx;padding:4%;" mode=""></image>
+				<image src="/static/logo.png" style="width: 144rpx;height: 144rpx;padding:4%;" mode=""></image>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script setup>
+	import { gotoPage, switchTab ,redirectTo} from "../../commen/utils/utils.js"
+	const handleGo = () => {
+		switchTab('/pages/index/index')
+		console.log("点击按钮")
+	};
+	onLoad(() => {
+		// 页面启动的生命周期，这里编写页面加载时的逻辑
+
+	})
+
+	// uni.navigateTo({
+	// 	url: '/pages/index/index'
+	// })
+</script>
+
+<style lang="scss">
+	.navigation {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		background-color: #0c141e;
+		justify-content: center;
+		align-items: center;
+
+		.logoView {
+			width: 80%;
+			height: 30%;
+			// background-color: red;
+			align-items: center;
+
+			.logo {
+				flex: 4;
+				width: 288rpx;
+			}
+
+			.VTitle {
+				flex: 1;
+				font-weight: 1000;
+				color: white;
+			}
+
+		}
+
+		.switchLoginBox {
+			display: flex;
+			flex-direction: row;
+			height: 80rpx;
+			width: 80%;
+			// background-color: red;
+			justify-content: space-evenly;
+
+			.login {
+				color: white;
+				padding: 5%;
+
+			}
+
+			.register {
+				color: white;
+				padding: 5%;
+			}
+		}
+
+		.loginBox {
+			// background-color: red;
+			width: 80%;
+			height: 30%;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-around;
+
+			.userName {
+				width: 100%;
+				background-color: white;
+				padding: 5%;
+				border-radius: 50rpx;
+			}
+
+			.password {
+				width: 100%;
+				background-color: white;
+				padding: 5%;
+				border-radius: 50rpx;
+			}
+
+			.loginButton {
+				color: white;
+				background-color: #3c86fe;
+				border-radius: 50rpx;
+			}
+		}
+	}
+</style>

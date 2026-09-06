@@ -1,0 +1,132 @@
+<template>
+	<view class="navigation">
+		<view class="searchBox">
+			<text style="color: white;font-size: 64rpx;font-weight: 800;padding:2%;margin-left: -2%;">
+				物品记忆
+			</text>
+			<input type="text" placeholder="搜索物品名称..." class="searchBoxView" />
+		</view>
+		<view class="imageBox">
+			<swiper :indicator-dots="true" :autoplay="true" :interval="3000" :duration="1000">
+				<swiper-item>
+					<view class="swiper-item">
+						<image src="/static/logo.png" mode=""></image>
+					</view>
+				</swiper-item>
+				<swiper-item>
+					<view class="swiper-item">
+						<image src="/static/logo.png" mode=""></image>
+					</view>
+				</swiper-item>
+			</swiper>
+		</view>
+		<view class="switchButton">
+			<image v-for="(img, index) in imageList" :key="img.id" :src="img.url" mode="aspectFill" class="image-item">
+			</image>
+		</view>
+		<view class="recover">
+			<view class="recoverTitle">
+				<text style="color: white;">最近记录</text>
+				<text style="color: white;">更多></text>
+			</view>
+			<view class="recoverImage">
+				<image v-for="(img, index) in imageList" :key="img.id" :src="img.url" mode="aspectFill"
+					class="image-item">
+				</image>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	const title = ref('Hello')
+	const imageList = ref([
+		{ id: 1, url: '/static/logo.png' },
+		{ id: 2, url: '/static/logo.png' },
+		{ id: 3, url: '/static/logo.png' }
+	]);
+</script>
+
+<style lang="scss">
+	.navigation {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		// justify-content: space-evenly;
+		align-items: center;
+		width: 100%;
+		background-color: #1f293a;
+
+		.searchBox {
+			display: flex;
+			flex-direction: column;
+			width: 80%;
+
+			.searchBoxView {
+				background-color: #ffffff;
+				padding: 5%;
+				border-radius: 50rpx;
+				height: 80rpx;
+			}
+		}
+
+		.imageBox {
+			border-color: red;
+			width: 80%;
+			height: 20%;
+			background-color: #ffffff;
+			border-radius: 30rpx;
+			margin-top: 20rpx;
+		}
+
+		.switchButton {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			width: 100%;
+			padding: 10rpx;
+			box-sizing: border-box;
+			margin-top: 20rpx;
+
+			.image-item {
+				flex: 1;
+				width: 30%;
+				height: 200rpx;
+				margin: 10rpx 10rpx;
+				// background-color: #f0f0f0;
+			}
+		}
+
+		.recover {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			width: 100%;
+			margin-top: 20rpx;
+
+			.recoverTitle {
+				width: 80%;
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+			}
+
+			.recoverImage {
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+				width: 100%;
+				padding: 10rpx;
+				box-sizing: border-box;
+
+				.image-item {
+					flex: 1;
+					width: 30%;
+					height: 200rpx;
+					margin: 10rpx 10rpx;
+				}
+			}
+		}
+	}
+</style>

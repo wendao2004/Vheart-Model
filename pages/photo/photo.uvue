@@ -1,0 +1,54 @@
+<template>
+	<view class="navigation">
+		<view class="navigationTitle">
+			<text class="navigationTitleText">相册</text>
+		</view>
+		<view class="switchButton">
+			<view class="switchButtonView">
+				<!-- <button>全部</button>
+				<button>视频</button>
+				<button>照片</button> -->
+			</view>
+		</view>
+	</view>
+</template>
+
+<script setup>
+
+</script>
+
+<style lang="scss">
+	.navigation {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		height: 100%;
+		background-color: #ffff00;
+		// justify-content: center;
+		.navigationTitle {
+			width: 100%;
+			height: 100rpx;
+			display: flex;
+			flex-direction: row;
+			justify-content: start;
+			align-items: center;
+			background-color: red;
+
+			.navigationTitleText {
+				font-size: 64rpx;
+				font-weight: 800;
+				color: white;
+				padding: 4%;
+			}
+
+			.switchButton {
+				width: 100%;
+				height: 550rpx;
+				background-color: green;
+
+				.switchButtonView {}
+			}
+		}
+	}
+</style>
