@@ -17,6 +17,12 @@
 			"style": {
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path": "pages/me/me",
+			"style": {
+				"navigationStyle": "custom"
+			}
 		}
 
 	],
@@ -42,7 +48,8 @@
 				"pagePath": "pages/photo/photo"
 			},
 			{
-				"text": "我的"
+				"text": "我的",
+				"pagePath": "pages/me/me"
 			}
 		]
 	}

@@ -3,18 +3,39 @@
 		<view class="navigationTitle">
 			<text class="navigationTitleText">相册</text>
 		</view>
-		<view class="switchButton">
-			<view class="switchButtonView">
-				<!-- <button>全部</button>
-				<button>视频</button>
-				<button>照片</button> -->
-			</view>
+
+		<view class="switchButtonView">
+			<button style="width: 200rpx;border-radius: 50rpx;background-color: #3781fc;">
+				<text style="color: white;font-size: 36rpx;">全部</text>
+			</button>
+			<button style="width: 200rpx;border-radius: 50rpx;background-color: #3781fc;">
+				<text style="color: white;font-size: 36rpx;">图片</text>
+			</button>
+			<button style="width: 200rpx;border-radius: 50rpx;background-color: #3781fc;">
+				<text style="color: white;font-size: 36rpx;">视频</text>
+			</button>
 		</view>
+
+		<view class="imageList">
+			<image v-for="(img, index) in imageList" :key="img.id" :src="img.url" mode="aspectFill" class="image-item">
+			</image>
+		</view>
+
 	</view>
 </template>
 
 <script setup>
-
+	const imageList = ref([
+		{ id: 1, url: '/static/logo.png' },
+		{ id: 2, url: '/static/logo.png' },
+		{ id: 3, url: '/static/logo.png' },
+		{ id: 4, url: '/static/logo.png' },
+		{ id: 5, url: '/static/logo.png' },
+		{ id: 6, url: '/static/logo.png' },
+		{ id: 7, url: '/static/logo.png' },
+		{ id: 8, url: '/static/logo.png' },
+		{ id: 9, url: '/static/logo.png' }
+	]);
 </script>
 
 <style lang="scss">
@@ -24,16 +45,16 @@
 		flex-direction: column;
 		width: 100%;
 		height: 100%;
-		background-color: #ffff00;
-		// justify-content: center;
+		background-color: #1f293a;
+
 		.navigationTitle {
-			width: 100%;
+			width: 80%;
 			height: 100rpx;
 			display: flex;
 			flex-direction: row;
 			justify-content: start;
 			align-items: center;
-			background-color: red;
+			// background-color: red;
 
 			.navigationTitleText {
 				font-size: 64rpx;
@@ -42,12 +63,34 @@
 				padding: 4%;
 			}
 
-			.switchButton {
-				width: 100%;
-				height: 550rpx;
-				background-color: green;
 
-				.switchButtonView {}
+		}
+
+		.switchButtonView {
+			display: flex;
+			flex-direction: row;
+			width: 100%;
+			padding: 4%;
+			justify-content: space-around;
+		}
+
+		.imageList {
+			width: 100%;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-around;
+			flex-wrap: wrap;
+			
+
+			.image-item {
+				// flex: 1;
+				padding: 4%;
+				width: 244rpx;
+				height: 244rpx;
+				// height: 200rpx;
+				// margin: 10rpx 10rpx;
+				// background-color: #f0f0f0;
 			}
 		}
 	}
