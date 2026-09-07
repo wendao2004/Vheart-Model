@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-	import { gotoPage, switchTab ,redirectTo} from "../../commen/utils/utils.js"
+	import { gotoPage, switchTab, redirectTo } from "../../commen/utils/utils.js"
 	const handleGo = () => {
 		switchTab('/pages/index/index')
 		console.log("点击按钮")
@@ -47,7 +47,7 @@
 		display: flex;
 		flex-direction: column;
 		width: 100%;
-		background-color: #0c141e;
+		background-color: #0c121e;
 		justify-content: center;
 		align-items: center;
 
@@ -75,18 +75,22 @@
 			flex-direction: row;
 			height: 80rpx;
 			width: 80%;
-			// background-color: red;
-			justify-content: space-evenly;
+			background-color: red;
+			justify-content: space-around;
+			align-items: center;
 
 			.login {
 				color: white;
 				padding: 5%;
-
+				font-size: 40rpx;
+				font-weight: 800;
 			}
 
 			.register {
 				color: white;
 				padding: 5%;
+				font-size: 40rpx;
+				font-weight: 800;
 			}
 		}
 
@@ -103,6 +107,7 @@
 				background-color: white;
 				padding: 5%;
 				border-radius: 50rpx;
+				height: 90rpx;
 			}
 
 			.password {
@@ -110,6 +115,7 @@
 				background-color: white;
 				padding: 5%;
 				border-radius: 50rpx;
+				height: 90rpx;
 			}
 
 			.loginButton {

@@ -5,13 +5,13 @@
 		</view>
 
 		<view class="switchButtonView">
-			<button style="width: 200rpx;border-radius: 50rpx;background-color: #3781fc;">
+			<button style="width: 200rpx;border-radius: 50rpx;background-color: #3781fc;display: flex;justify-content: center;">
 				<text style="color: white;font-size: 36rpx;">全部</text>
 			</button>
-			<button style="width: 200rpx;border-radius: 50rpx;background-color: #3781fc;">
+			<button style="width: 200rpx;border-radius: 50rpx;background-color: #3781fc;display: flex;justify-content: center;">
 				<text style="color: white;font-size: 36rpx;">图片</text>
 			</button>
-			<button style="width: 200rpx;border-radius: 50rpx;background-color: #3781fc;">
+			<button style="width: 200rpx;border-radius: 50rpx;background-color: #3781fc;display: flex;justify-content: center;">
 				<text style="color: white;font-size: 36rpx;">视频</text>
 			</button>
 		</view>
@@ -45,7 +45,7 @@
 		flex-direction: column;
 		width: 100%;
 		height: 100%;
-		background-color: #1f293a;
+		background-color: #0c121e;
 
 		.navigationTitle {
 			width: 80%;

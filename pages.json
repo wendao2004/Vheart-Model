@@ -41,7 +41,7 @@
 		"borderStyle": "black",
 		"list": [{
 				"text": "首页",
-				"pagePath": "pages/index/index"
+				"pagePath": "pages/index/index"				
 			},
 			{
 				"text": "相册",
