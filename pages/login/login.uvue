@@ -10,9 +10,9 @@
 			<text class="register">注册</text>
 		</view>
 		<view class="loginBox">
-			<input class="userName" type="number" placeholder="请输入手机号" />
-			<input class="password" type="text" password="true" placeholder="请输入密码" />
-			<button class="loginButton" @click="handleGo">登陆</button>
+			<input class="userName" type="number" placeholder="请输入手机号" v-model="username" />
+			<input class="password" type="text" password="true" placeholder="请输入密码" v-model="password" />
+			<button class="loginButton" @tap="handLogin">登陆</button>
 			<text style="color: #3c86fe;display: flex;">忘记密码?</text>
 		</view>
 		<view>
@@ -35,6 +35,50 @@
 		// 页面启动的生命周期，这里编写页面加载时的逻辑
 
 	})
+
+	const username = ref('');
+	const password = ref('');
+	const handLogin = () => {
+		if (!username.value || !password.value) {
+			uni.showToast({
+				title: '请输入用户名密码',
+				icon: 'none'
+			});
+			return;
+		}
+		uni.request({
+			url: '',
+			method: 'POST',
+			data: {
+				username: username.value,
+				password: password.value,
+			},
+			success: (res) => {
+				console.log('登录成功', res.data);
+				if (res.data.code === 200) {
+					uni.setStorageSync('token', res.data.token);
+					uni.showToast({
+						title: '登录成功',
+					})
+					uni.switchTab({
+						url: '/pages/index/index'
+					})
+				} else {
+					uni.showToast({
+						title: '登陆失败',
+						icon: 'none'
+					})
+				}
+			},
+			fail: (err) => {
+				console.error('请求失败', err);
+				uni.showToast({
+					title: '网络错误',
+					icon: 'none'
+				})
+			}
+		});
+	}
 
 	// uni.navigateTo({
 	// 	url: '/pages/index/index'

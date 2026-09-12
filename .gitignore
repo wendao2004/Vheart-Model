@@ -4,3 +4,4 @@ unpackage/
 .DS_Store
 uni_modules
 uniCloud-alipay/database/JQL查询.jql
+uniCloud-alipay/cloudfunctions
