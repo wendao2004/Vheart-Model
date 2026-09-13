@@ -1,4 +1,4 @@
-<script setup lang="uts">
+﻿<script setup lang="uts">
 	// #ifdef APP-ANDROID || APP-HARMONY
 	let firstBackTime = 0
 	// #endif
@@ -40,6 +40,11 @@
 </script>
 
 <style>
+	/* 全局页面背景色，防止切换页面时白屏闪烁 */
+	.page {
+		background-color: #0c121e;
+	}
+
 	/*每个页面公共css */
 	.uni-row {
 		flex-direction: row;
@@ -49,3 +54,4 @@
 		flex-direction: column;
 	}
 </style>
+

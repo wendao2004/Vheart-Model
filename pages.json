@@ -1,5 +1,5 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://doc.dcloud.net.cn/uni-app-x/collocation/pagesjson.html
+	"pages": [
 		{
 			"path": "pages/login/login",
 			"style": {
@@ -24,24 +24,24 @@
 				"navigationStyle": "custom"
 			}
 		}
-
 	],
 	"globalStyle": {
-		"navigationBarTextStyle": "black",
+		"navigationBarTextStyle": "white",
 		"navigationStyle": "custom",
 		"navigationBarTitleText": "Vheart-Model",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
+		"navigationBarBackgroundColor": "#0c121e",
+		"backgroundColor": "#0c121e"
 	},
 	"uniIdRouter": {},
 	"tabBar": {
-		"color": "#999999",
-		"selectedColor": "##3d7cfb",
-		"backgroundColor": "#FFFFFF",
+		"color": "rgba(255,255,255,0.45)",
+		"selectedColor": "#3c86fe",
+		"backgroundColor": "#0c121e",
 		"borderStyle": "black",
-		"list": [{
+		"list": [
+			{
 				"text": "首页",
-				"pagePath": "pages/index/index"				
+				"pagePath": "pages/index/index"
 			},
 			{
 				"text": "相册",
