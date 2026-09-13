@@ -4,4 +4,11 @@ unpackage/
 .DS_Store
 uni_modules
 uniCloud-alipay/database/JQL查询.jql
-uniCloud-alipay/cloudfunctions
+
+backend_dir.txt
+uniCloud-alipay/cloudfunctions/Vheart-Model/etsc.config.js
+uniCloud-alipay/cloudfunctions/Vheart-Model/build.js
+uniCloud-alipay/cloudfunctions/Vheart-Model/nodemon.json
+uniCloud-alipay/cloudfunctions/Vheart-Model/package.json
+uniCloud-alipay/cloudfunctions/Vheart-Model/pnpm-lock.yaml
+uniCloud-alipay/cloudfunctions/Vheart-Model/tsconfig.json

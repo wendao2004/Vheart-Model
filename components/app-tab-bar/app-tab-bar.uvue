@@ -1,0 +1,112 @@
+﻿<template>
+	<view class="tab-bar" :class="{ 'theme-light': globalTheme.isLight.value }">
+		<view class="tab-bar-content">
+			<view v-for="(item, index) in tabList" :key="index" class="tab-item" @tap="switchTab(item.pagePath)">
+				<text class="tab-text" :class="{ active: current === item.key }">{{ item.text }}</text>
+			</view>
+		</view>
+		<view class="safe-area" :style="{ height: safeBottomHeight }"></view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { ref, computed, onMounted } from 'vue';
+import { globalTheme } from '@/core/model/use-theme-model';
+
+	defineProps({
+		current: {
+			type: String,
+			default: ''
+		}
+	});
+
+	type TabItem = {
+		key : string;
+		text : string;
+		pagePath : string;
+	}
+
+	const safeBottom = ref(0);
+
+	const safeBottomHeight = computed(() => {
+		return safeBottom.value + 'px';
+	});
+
+	const tabList : TabItem[] = [
+		{ key: 'index', text: '首页', pagePath: '/pages/index/index' },
+		{ key: 'photo', text: '相册', pagePath: '/pages/photo/photo' },
+		{ key: 'me', text: '我的', pagePath: '/pages/me/me' }
+	];
+
+	onMounted(() => {
+		const systemInfo = uni.getSystemInfoSync();
+		// UTS 不支持 undefined，只用 null 判断
+		if (systemInfo.safeAreaInsets !== null && systemInfo.safeAreaInsets.bottom > 0) {
+			safeBottom.value = systemInfo.safeAreaInsets.bottom;
+		}
+	});
+
+	function switchTab(pagePath : string) {
+		uni.switchTab({
+			url: pagePath
+		});
+	}
+</script>
+
+<style lang="scss">
+	.tab-bar {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #0c121e;
+		z-index: 999;
+	}
+
+	.tab-bar-content {
+		display: flex;
+		flex-direction: row;
+		height: 100rpx;
+		align-items: center;
+		border-top-width: 1rpx;
+		border-top-style: solid;
+		border-top-color: rgba(255, 255, 255, 0.06);
+	}
+
+	.tab-item {
+		flex: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100rpx;
+	}
+
+	.tab-text {
+		font-size: 28rpx;
+		color: rgba(255, 255, 255, 0.45);
+	}
+
+	.tab-text.active {
+		color: #3c86fe;
+		font-weight: 700;
+	}
+
+	.safe-area {
+		background-color: #0c121e;
+	}
+
+	/* ========== 浅色主题覆盖 ========== */
+	.theme-light {
+		background-color: #ffffff;
+		border-top-color: rgba(0,0,0,0.08);
+	}
+	.theme-light .tab-text {
+		color: rgba(26,26,46,0.4);
+	}
+	.theme-light .tab-text.active {
+		color: #3c86fe;
+	}
+	.theme-light .safe-area { background-color: #ffffff; }
+</style>
+
+
