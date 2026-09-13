@@ -1,6 +1,8 @@
-# uniapp 云函数 TypeScript 开发环境配置指南
+﻿# uniapp 云函数 TypeScript 开发环境配置指南
 
-基于 `esbuild-node-tsc` + `nodemon` 实现 TS 实时编译为 JS，用于 uniapp 云函数开发。
+基于 **esbuild bundle** + `nodemon` 实现 TS 分层源码实时打包为单文件 JS，用于 uniapp 云函数开发。
+
+> 开发时写多文件 TS（controller/service/dao/entity/dto/common 分层），上传时自动合并成单个 `dist/index.js`，云函数环境无需 node_modules。
 
 ---
 
@@ -24,26 +26,40 @@ npm install -g pnpm@9.15.0 --registry=https://registry.npmmirror.com
 ## 二、目录结构
 
 ```
-Vheat-Model/                          # 云函数根目录
+Vheart-Model/                         # 云函数根目录
 ├── src/
-│   └── index.ts                      # TS 源码入口（写代码在这里）
+│   ├── index.ts                      # 云函数入口（action 路由）
+│   ├── controller/                   # 控制层：参数校验 + 调 Service + 包装响应
+│   │   └── auth.controller.ts
+│   ├── service/                      # 业务层：登录/注册业务逻辑编排
+│   │   └── auth.service.ts
+│   ├── dao/                          # 数据层：数据库 CRUD
+│   │   └── user.dao.ts
+│   ├── entity/                       # 实体：数据表字段定义
+│   │   └── user.entity.ts
+│   ├── dto/                          # DTO：请求/响应类型
+│   │   └── auth.dto.ts
+│   └── common/                       # 公共工具
+│       ├── result.ts                 # 统一响应 {code, msg, data}
+│       └── crypto.ts                 # 密码加密 + token 生成
 ├── dist/
-│   └── index.js                      # 编译输出（自动生成，不要手动改）
+│   └── index.js                      # ⭐ 打包输出（单文件，自动生成）
+├── build.js                          # esbuild 打包脚本（bundle 单文件）
 ├── node_modules/                     # 依赖（自动生成）
 ├── .pnpm-store/                      # pnpm 本地缓存（自动生成，已配 .npmrc）
 ├── .npmrc                            # pnpm 配置（镜像源 + store 路径）
 ├── package.json                      # 项目依赖与入口配置
-├── tsconfig.json                     # TypeScript 编译配置
-├── etsc.config.js                    # esbuild-node-tsc 配置（v2 格式）
+├── tsconfig.json                     # TypeScript 编译配置（类型检查用）
 ├── nodemon.json                      # 文件监听配置
 └── pnpm-lock.yaml                    # 依赖锁定文件
 ```
 
 ### 关键路径说明
 
-- **写代码** → `src/index.ts`（或 `src/` 下任意 `.ts` 文件）
-- **编译输出** → `dist/index.js`
+- **写代码** → `src/` 下按分层创建 `.ts` 文件
+- **打包输出** → `dist/index.js`（单文件，包含所有层 + 依赖）
 - **uniapp 云函数入口** → `package.json` 中 `"main": "dist/index.js"`
+- **根目录 `index.js`** → uniCloud 标准入口，内部 `require('./dist/index.js')`
 
 ---
 
@@ -53,12 +69,19 @@ Vheat-Model/                          # 云函数根目录
 
 ```json
 {
-  "name": "api-main",
+  "name": "Vheart-Model",
   "main": "dist/index.js",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "nodemon"
+  },
   "dependencies": {
     "esbuild-node-tsc": "^2.0.5",
     "nodemon": "^3.1.14",
     "typescript": "5.5.4"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
   },
   "extensions": {
     "uni-cloud-jql": {}
@@ -66,9 +89,30 @@ Vheat-Model/                          # 云函数根目录
 }
 ```
 
-> ⚠️ **TypeScript 必须锁定 5.x**，7.x 版本的 `ts.sys.fileExists` API 变更会导致 etsc 崩溃。
+> `esbuild` 必须作为直接依赖安装（pnpm 依赖隔离，etsc 内部的 esbuild 顶层不可见）。
 
-### 2. tsconfig.json
+### 2. build.js（核心：esbuild bundle 单文件打包）
+
+```js
+const esbuild = require('esbuild');
+
+esbuild.buildSync({
+  entryPoints: ['src/index.ts'],
+  bundle: true,          // ⭐ 关键：合并所有本地 import 到一个文件
+  platform: 'node',
+  format: 'cjs',
+  target: 'es2017',
+  minify: true,
+  outfile: 'dist/index.js',
+  logLevel: 'info',
+});
+```
+
+- `bundle: true`：把 controller/service/dao/common 等所有本地模块合并进 `dist/index.js`
+- Node 内置模块（`crypto` 等）和 uniCloud 全局变量自动不打包
+- 后续新增的 npm 依赖也会自动打进 bundle（云函数环境无需 node_modules）
+
+### 3. tsconfig.json
 
 ```json
 {
@@ -85,25 +129,7 @@ Vheat-Model/                          # 云函数根目录
 }
 ```
 
-- `outDir`：编译输出目录，必须和 `etsc.config.js` 一致
-- `rootDir`：源码根目录，决定输出时是否保留子目录结构
-- `include`：只编译 `src/` 下的文件
-
-### 3. etsc.config.js（v2 格式，必须是 .js 后缀）
-
-```js
-module.exports = {
-  esbuild: {
-    outdir: "./dist",
-    minify: true,
-    target: "es2017",
-    platform: "node",
-    format: "cjs"
-  }
-};
-```
-
-> ⚠️ **v1 与 v2 格式不兼容**：v1 用 `outDir`（大写 D）+ `include`/`exclude`/`preserveModules` 顶层字段；v2 全部放在 `esbuild` 对象内，且 `outdir` 是小写。文件名必须是 `.js`（内容是 `module.exports`），不能叫 `.json`。
+> tsconfig 主要用于编辑器类型提示和 IDE 检查；实际打包由 esbuild 完成（esbuild 不读 tsconfig 的编译选项）。
 
 ### 4. nodemon.json
 
@@ -111,15 +137,15 @@ module.exports = {
 {
   "watch": ["src"],
   "ext": "ts,json",
-  "exec": "etsc --config etsc.config.js",
+  "exec": "node build.js",
   "legacyWatch": true
 }
 ```
 
 - `watch`：监听的目录
 - `ext`：监听的文件扩展名
-- `exec`：文件变化时执行的命令
-- `legacyWatch`：Windows 下建议开启，避免某些文件系统事件不触发
+- `exec`：文件变化时执行 `node build.js` 重新打包
+- `legacyWatch`：Windows 下建议开启
 
 ### 5. .npmrc
 
@@ -129,7 +155,7 @@ store-dir=./.pnpm-store
 ```
 
 - `registry`：国内镜像源，加速下载
-- `store-dir`：pnpm 缓存目录，放在项目内避免沙箱/权限问题（默认在系统盘根目录可能无权限）
+- `store-dir`：pnpm 缓存目录，放在项目内避免系统盘权限问题
 
 ---
 
@@ -150,7 +176,7 @@ npm install -g pnpm@9.15.0 --registry=https://registry.npmmirror.com
 ### Step 2：进入云函数目录
 
 ```bash
-cd uniCloud-alipay/cloudfunctions/Vheat-Model
+cd uniCloud-alipay/cloudfunctions/Vheart-Model
 ```
 
 ### Step 3：安装依赖
@@ -161,59 +187,85 @@ pnpm install
 
 > 如果报 `EPERM: operation not permitted, mkdir 'D:\.pnpm-store'`，确认 `.npmrc` 中已配置 `store-dir=./.pnpm-store`。
 
-### Step 4：验证编译
+### Step 4：验证打包
 
 ```bash
-npx etsc --config etsc.config.js
+node build.js
 ```
 
-成功后应输出 `Built in: xxxms`，且 `dist/index.js` 已生成。
+成功后应输出：
+```
+dist/index.js  3.2kb
+Done in 6ms
+[build] dist/index.js generated (single bundle)
+```
+
+且 `dist/` 目录下**只有一个 `index.js`**（不是分散的多文件）。
 
 ---
 
 ## 五、日常使用
 
-### 开发模式（推荐：文件保存自动编译）
+### 开发模式（推荐：文件保存自动打包）
 
 ```bash
+pnpm dev
+# 等价于
 npx nodemon
-```
-
-或在 `package.json` 中添加脚本后用 `pnpm dev`：
-```json
-{
-  "scripts": {
-    "dev": "nodemon",
-    "build": "etsc --config etsc.config.js"
-  }
-}
 ```
 
 启动后输出：
 ```
 [nodemon] watching path(s): src\**\*
-[nodemon] starting `etsc --config etsc.config.js`
-Built in: 320.003ms
+[nodemon] starting `node build.js`
+dist/index.js  3.2kb
+Done in 6ms
+[build] dist/index.js generated (single bundle)
 [nodemon] clean exit - waiting for changes before restart
 ```
 
-修改 `src/` 下任意 `.ts` 文件保存后，自动触发重新编译。
+修改 `src/` 下任意 `.ts` 文件保存后，自动触发重新打包。
 
-### 单次编译
+> ⚡ 启动命令和之前 etsc 版本完全一样（`npx nodemon` / `pnpm dev`），只是内部从多文件编译变成了单文件打包。
+
+### 单次打包
 
 ```bash
-npx etsc --config etsc.config.js
+pnpm build
+# 等价于
+node build.js
 ```
 
 ### 上传云函数
 
-1. 确保 `dist/index.js` 已最新编译
-2. 在 HBuilderX 中右键云函数目录 `Vheat-Model` → 「上传部署」
+1. 确保 `dist/index.js` 已最新打包
+2. 在 HBuilderX 中右键云函数目录 `Vheart-Model` → 「上传部署」
 3. uniapp 会根据 `package.json` 的 `"main": "dist/index.js"` 找到入口
+4. 上传的是单文件 `dist/index.js`，云函数端无需安装依赖
 
 ---
 
-## 六、常见问题排查
+## 六、分层架构说明
+
+```
+index.ts（入口）
+    ↓ 解析 action 路由
+controller/（控制层）—— 参数校验、调 Service、包装统一响应
+    ↓
+service/（业务层）—— 业务逻辑编排、密码校验、token 生成
+    ↓
+dao/（数据层）—— 数据库 CRUD，不写业务逻辑
+    ↓
+entity/（实体）—— 数据表字段定义
+dto/（数据传输对象）—— 请求/响应类型，对齐前端
+common/（公共工具）—— result 响应封装、crypto 加密
+```
+
+**依赖方向**：index → controller → service → dao → 数据库，每一层只依赖下一层，符合开闭原则。新增业务（如忘记密码）只需加 controller 方法 + service 方法，不动现有代码。
+
+---
+
+## 七、常见问题排查
 
 ### ❌ 问题1：`Error [ERR_UNKNOWN_BUILTIN_MODULE]: No such built-in module: node:sqlite`
 
@@ -228,7 +280,7 @@ npm install -g pnpm@9.15.0 --registry=https://registry.npmmirror.com
 
 ### ❌ 问题2：`ERROR packages field missing or empty`
 
-**原因**：项目根目录有 `pnpm-workspace.yaml`，但内容不是有效的 workspace 配置（比如只有 `allowBuilds` 字段）。
+**原因**：项目根目录有 `pnpm-workspace.yaml`，但内容不是有效的 workspace 配置。
 
 **解决**：删除 `pnpm-workspace.yaml`（单云函数项目不需要 workspace）。
 
@@ -245,46 +297,26 @@ store-dir=./.pnpm-store
 
 ---
 
-### ❌ 问题4：`Your etsc config file is using the old v1.0 format`
+### ❌ 问题4：`Error: Cannot find module 'esbuild'`
 
-**原因**：`etsc.config.js` 使用了 v1 格式（顶层 `outDir`、`include`、`preserveModules` 等字段）。
-
-**解决**：改为 v2 格式，所有 esbuild 选项放在 `esbuild` 对象内：
-```js
-module.exports = {
-  esbuild: {
-    outdir: "./dist",
-    minify: true,
-    target: "es2017",
-    platform: "node",
-    format: "cjs"
-  }
-};
-```
-
----
-
-### ❌ 问题5：`TypeError: Cannot read properties of undefined (reading 'fileExists')`
-
-**原因**：TypeScript 版本过高（7.x），`ts.sys.fileExists` API 变更，etsc 2.0.5 不兼容。
+**原因**：pnpm 依赖隔离，esbuild 只作为 etsc 的间接依赖存在，顶层 `require('esbuild')` 找不到。
 
 **解决**：
 ```bash
-pnpm remove typescript
-pnpm add -D typescript@5.5.4
+pnpm add -D esbuild
 ```
 
 ---
 
-### ❌ 问题6：`etsc.config.json` 不生效 / 报错
+### ❌ 问题5：打包后 dist 下还是多个文件
 
-**原因**：配置文件内容是 `module.exports = {...}`（CommonJS 模块），但后缀是 `.json`。
+**原因**：用了 etsc 多文件编译，没有用 build.js 的 bundle 模式。
 
-**解决**：重命名为 `etsc.config.js`。
+**解决**：确认 `nodemon.json` 的 `exec` 是 `node build.js`，不是 `etsc`。删除旧的 `dist/` 目录后重新 `node build.js`。
 
 ---
 
-### ❌ 问题7：删除 node_modules 时「访问被拒绝」
+### ❌ 问题6：删除 node_modules 时「访问被拒绝」
 
 **原因**：pnpm 的 node_modules 使用硬链接/符号链接，PowerShell 的 `Remove-Item` 处理不好。
 
@@ -295,27 +327,29 @@ cmd /c "rmdir /s /q node_modules"
 
 ---
 
-## 七、新增云函数
+## 八、新增云函数
 
 如果需要新增另一个云函数（如 `user-center`），步骤：
 
 1. 在 `cloudfunctions/` 下新建 `user-center/` 目录
-2. 复制以下文件到新目录：`package.json`、`tsconfig.json`、`etsc.config.js`、`nodemon.json`、`.npmrc`
+2. 复制以下文件到新目录：`package.json`、`tsconfig.json`、`build.js`、`nodemon.json`、`.npmrc`、根目录 `index.js`
 3. 修改 `package.json` 的 `name` 为 `user-center`
-4. 创建 `src/index.ts` 写业务代码
-5. 在新目录下执行 `pnpm install` + `npx nodemon`
+4. 创建 `src/index.ts` 和分层目录写业务代码
+5. 在新目录下执行 `pnpm install` + `pnpm dev`
 
 > 每个云函数是独立的 npm 项目，需要单独安装依赖和启动监听。
 
 ---
 
-## 八、依赖版本锁定清单（已验证可用）
+## 九、依赖版本锁定清单（已验证可用）
 
 | 包 | 版本 | 说明 |
 |----|------|------|
 | Node.js | 20.20.2 | 运行时 |
 | pnpm | 9.15.0 | 包管理器 |
-| esbuild-node-tsc | 2.0.5 | TS 编译器 |
-| esbuild | 0.28.2 | 底层构建工具（etsc 依赖） |
+| esbuild | 0.28.2 | ⭐ 打包工具（直接依赖，bundle 单文件） |
+| esbuild-node-tsc | 2.0.5 | 保留（不再用于构建，可移除） |
 | nodemon | 3.1.14 | 文件监听 |
-| typescript | 5.5.4 | ⚠️ 必须 5.x，不能 7.x |
+| typescript | 5.5.4 | 类型检查 / IDE 提示 |
+
+> `esbuild-node-tsc` 和 `etsc.config.js` 在 bundle 模式下已不再使用，可从依赖中移除。保留不影响功能。
