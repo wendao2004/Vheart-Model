@@ -1,0 +1,74 @@
+/**
+ * 通用工具函数（UTS 版本，供 uvue 页面 import）
+ */
+
+// 页面跳转
+export function gotoPage(url : string) : void {
+	uni.navigateTo({
+		url: url,
+		success: () => {
+			console.log("跳转至", url);
+		},
+		fail: (err : any) => {
+			console.log(err);
+		}
+	});
+}
+
+export function redirectTo(url : string) : void {
+	uni.redirectTo({
+		url: url,
+		success: () => {
+			console.log("跳转至", url);
+		},
+		fail: (err : any) => {
+			console.log(err);
+		}
+	});
+}
+
+export function switchTab(url : string) : void {
+	uni.switchTab({
+		url: url,
+		success: () => {
+			console.log("跳转至", url);
+		},
+		fail: (err : any) => {
+			console.log(err);
+		}
+	});
+}
+
+export function reLaunch(url : string) : void {
+	uni.reLaunch({
+		url: url,
+		success: () => {
+			console.log("跳转至", url);
+		},
+		fail: (err : any) => {
+			console.log(err);
+		}
+	});
+}
+
+// 提示
+export function showToast(title : string, icon : string) : void {
+	uni.showToast({
+		title: title,
+		icon: icon
+	});
+}
+
+export function hideToast() : void {
+	uni.hideToast();
+}
+
+export function showLoading(title : string) : void {
+	uni.showLoading({
+		title: title
+	});
+}
+
+export function hideloading() : void {
+	uni.hideLoading();
+}
